@@ -60,16 +60,7 @@ export async function handleTasks(ctx: BotContext) {
       ]
     };
 
-    // Handle task checking
-    ctx.telegram.on('callback_query', async (cbCtx) => {
-      if (cbCtx.callbackQuery && 'data' in cbCtx.callbackQuery) {
-        const data = cbCtx.callbackQuery.data;
-        if (data.startsWith('check_task_')) {
-          const taskId = data.replace('check_task_', '');
-          await checkTask(cbCtx, taskId);
-        }
-      }
-    });
+    // Task checking is handled in bot.ts via action handlers
 
     await ctx.editMessageText(taskText, { reply_markup: keyboard });
     await ctx.answerCbQuery();

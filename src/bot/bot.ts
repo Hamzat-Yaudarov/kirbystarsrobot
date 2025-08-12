@@ -146,18 +146,24 @@ export async function setupBot(): Promise<Telegraf<BotContext>> {
 
   // Withdrawal admin actions
   bot.action(/^approve_/, async (ctx) => {
-    const withdrawalId = ctx.callbackQuery?.data?.replace('approve_', '');
-    if (withdrawalId) {
-      const { handleWithdrawalAction } = await import('./handlers/withdrawal');
-      await handleWithdrawalAction(ctx, 'approve', withdrawalId);
+    const callbackQuery = ctx.callbackQuery;
+    if (callbackQuery && 'data' in callbackQuery) {
+      const withdrawalId = callbackQuery.data?.replace('approve_', '');
+      if (withdrawalId) {
+        const { handleWithdrawalAction } = await import('./handlers/withdrawal');
+        await handleWithdrawalAction(ctx, 'approve', withdrawalId);
+      }
     }
   });
 
   bot.action(/^reject_/, async (ctx) => {
-    const withdrawalId = ctx.callbackQuery?.data?.replace('reject_', '');
-    if (withdrawalId) {
-      const { handleWithdrawalAction } = await import('./handlers/withdrawal');
-      await handleWithdrawalAction(ctx, 'reject', withdrawalId);
+    const callbackQuery = ctx.callbackQuery;
+    if (callbackQuery && 'data' in callbackQuery) {
+      const withdrawalId = callbackQuery.data?.replace('reject_', '');
+      if (withdrawalId) {
+        const { handleWithdrawalAction } = await import('./handlers/withdrawal');
+        await handleWithdrawalAction(ctx, 'reject', withdrawalId);
+      }
     }
   });
 

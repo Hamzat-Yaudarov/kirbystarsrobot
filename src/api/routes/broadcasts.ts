@@ -47,7 +47,7 @@ router.post('/', async (req: Request, res: Response) => {
       try {
         parsedButtons = typeof кнопки === 'string' ? JSON.parse(кнопки) : кнопки;
         
-        // Проверяем структуру кнопок
+        // Проверяем структуру кноп��к
         if (!Array.isArray(parsedButtons)) {
           throw new Error('Кнопки должны быть массивом');
         }
@@ -74,7 +74,7 @@ router.post('/', async (req: Request, res: Response) => {
       data: {
         title: заголовок,
         content: содержание,
-        buttons: parsedButtons
+        buttons: parsedButtons as any
       }
     });
 

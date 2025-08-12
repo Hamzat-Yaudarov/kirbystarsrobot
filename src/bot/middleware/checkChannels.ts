@@ -29,7 +29,7 @@ export async function checkMandatoryChannels(ctx: BotContext, next: () => Promis
                 text: `📢 ${ch.title}`,
                 url: ch.link || `https://t.me/${ch.chatId.replace('@', '')}`
               }])),
-              [{ text: '✅ Проверить подписку', callback_data: ctx.callbackQuery?.data || 'profile' }]
+              [{ text: '✅ Проверить подписку', callback_data: (ctx.callbackQuery && 'data' in ctx.callbackQuery) ? ctx.callbackQuery.data : 'profile' }]
             ]
           };
 
