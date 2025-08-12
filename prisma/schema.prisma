@@ -1,0 +1,214 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String    @id @default(cuid())
+  telegramId        String    @unique
+  username          String?
+  firstName         String?
+  lastName          String?
+  balance           Float     @default(0)
+  lastClick         DateTime?
+  referralCode      String    @unique @default(cuid())
+  referrerId        String?
+  referrer          User?     @relation("UserReferrals", fields: [referrerId], references: [id])
+  referrals         User[]    @relation("UserReferrals")
+  isActive          Boolean   @default(true)
+  isBanned          Boolean   @default(false)
+  casesOpened       Int       @default(0)
+  lastCaseDate      DateTime?
+  weeklyReferrals   Int       @default(0)
+  weekResetDate     DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  completedTasks    UserTask[]
+  pets              UserPet[]
+  lotteryTickets    LotteryTicket[]
+  usedPromocodes    UserPromocode[]
+  withdrawals       Withdrawal[]
+
+  @@map("users")
+}
+
+model Task {
+  id          String    @id @default(cuid())
+  title       String
+  description String
+  reward      Float
+  type        String    // 'channel', 'chat', 'bot'
+  link        String
+  chatId      String?   // for verification
+  isActive    Boolean   @default(true)
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  completedBy UserTask[]
+
+  @@map("tasks")
+}
+
+model UserTask {
+  id        String   @id @default(cuid())
+  userId    String
+  taskId    String
+  completed Boolean  @default(false)
+  claimedAt DateTime?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, taskId])
+  @@map("user_tasks")
+}
+
+model Pet {
+  id          String    @id @default(cuid())
+  name        String
+  description String
+  price       Float
+  boostType   String    // 'click', 'referral1', 'referral2', 'task'
+  boostValue  Float
+  imageUrl    String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  owners UserPet[]
+
+  @@map("pets")
+}
+
+model UserPet {
+  id        String   @id @default(cuid())
+  userId    String
+  petId     String
+  level     Int      @default(1)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pet  Pet  @relation(fields: [petId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, petId])
+  @@map("user_pets")
+}
+
+model Lottery {
+  id               String    @id @default(cuid())
+  title            String
+  description      String
+  ticketPrice      Float
+  totalTickets     Int
+  soldTickets      Int       @default(0)
+  commission       Float     // percentage
+  prizePool        Float     @default(0)
+  isActive         Boolean   @default(true)
+  autoWinner       Boolean   @default(true)
+  endDate          DateTime?
+  winnerId         String?
+  winnerSelected   Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  tickets LotteryTicket[]
+
+  @@map("lotteries")
+}
+
+model LotteryTicket {
+  id        String   @id @default(cuid())
+  lotteryId String
+  userId    String
+  createdAt DateTime @default(now())
+
+  lottery Lottery @relation(fields: [lotteryId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([lotteryId, userId])
+  @@map("lottery_tickets")
+}
+
+model Promocode {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  reward      Float
+  usageLimit  Int?
+  usedCount   Int       @default(0)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  usedBy UserPromocode[]
+
+  @@map("promocodes")
+}
+
+model UserPromocode {
+  id          String   @id @default(cuid())
+  userId      String
+  promocodeId String
+  usedAt      DateTime @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  promocode Promocode @relation(fields: [promocodeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, promocodeId])
+  @@map("user_promocodes")
+}
+
+model RequiredChannel {
+  id       String  @id @default(cuid())
+  title    String
+  chatId   String  @unique
+  link     String?
+  isActive Boolean @default(true)
+
+  @@map("required_channels")
+}
+
+model Withdrawal {
+  id          String    @id @default(cuid())
+  userId      String
+  amount      Float
+  type        String    // '15', '25', '50', '100', 'premium'
+  status      String    @default("pending") // 'pending', 'approved', 'rejected'
+  reason      String?
+  processedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("withdrawals")
+}
+
+model Broadcast {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  buttons   Json?    // JSON array of buttons
+  sent      Boolean  @default(false)
+  sentCount Int      @default(0)
+  createdAt DateTime @default(now())
+  sentAt    DateTime?
+
+  @@map("broadcasts")
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  password  String
+  role      String   @default("admin")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@map("admins")
+}
