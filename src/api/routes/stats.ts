@@ -122,7 +122,7 @@ router.get('/', async (req: Request, res: Response) => {
         всегоПользователей: totalUsers,
         активныхПользователей: activeUsers,
         заблокированныхПользователей: bannedUsers,
-        общийБа��ансПользователей: totalBalance._sum.balance || 0
+        общийБалансПользователей: totalBalance._sum.balance || 0
       },
       сегодня: {
         новыхПользователей: newUsersToday,

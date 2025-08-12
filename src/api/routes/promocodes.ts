@@ -43,7 +43,6 @@ router.post('/', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Код и награда обязательны' });
     }
 
-    // Проверяем, не существует ли уже такой промокод
     const existingPromo = await prisma.promocode.findUnique({
       where: { code: код.toUpperCase() }
     });
@@ -65,7 +64,7 @@ router.post('/', async (req: Request, res: Response) => {
       сообщение: 'Промокод создан',
       промокод: {
         id: promocode.id,
-        ��од: promocode.code,
+        код: promocode.code,
         награда: promocode.reward,
         лимитИспользований: promocode.usageLimit,
         активен: promocode.isActive
@@ -133,7 +132,6 @@ router.put('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     const { код, награда, лимитИспользований, активен } = req.body;
 
-    // Проверяем, если изменяется код, не существует ли уже такой
     if (код) {
       const existingPromo = await prisma.promocode.findFirst({
         where: { 
@@ -161,7 +159,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     res.json({
       успех: true,
       сообщение: 'Промокод обновлен',
-      промокод: {
+      пром��код: {
         id: promocode.id,
         код: promocode.code,
         награда: promocode.reward,
